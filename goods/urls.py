@@ -23,6 +23,5 @@ app_name = 'goods'
 
 urlpatterns :list[URLPattern] = [
     path('<slug:category_slug>/', views.catalog, name='index'),  # for goods page, www.site.com/catalog/
-    path('<slug:category_slug>/<int:page>/', views.catalog, name='index'),  # for goods page, www.site.com/catalog/1/
     path('product/<slug:product_slug>/', views.product, name='product'),# www.site.com/catalog/product/
 ]
