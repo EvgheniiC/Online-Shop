@@ -22,6 +22,7 @@ from goods import views
 app_name = 'goods'
 
 urlpatterns :list[URLPattern] = [
+    path('search/', views.catalog, name='search'),
     path('<slug:category_slug>/', views.catalog, name='index'),  # for goods page, www.site.com/catalog/
     path('product/<slug:product_slug>/', views.product, name='product'),# www.site.com/catalog/product/
 ]
