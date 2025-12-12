@@ -10,10 +10,14 @@
                     <h2 class="text-center mb-4">Авторизация</h2>
                     <form action="{% url "users:login" %}" method="post">
                         {% csrf_token %}
-                        {#  without django #}
-                        {% if form.non_field_errors %}
-                            <p>{{ form.non_field_errors }}</p>
+                        {% if request.Get.next %}
+                            <input type="hidden" name="next" value="{{ request.Get.next }}">
+
                         {% endif %}
+                        {#  without django #}
+{#                        {% if form.non_field_errors %}#}
+{#                            <p>{{ form.non_field_errors }}</p>#}
+{#                        {% endif %}#}
                         <div class="mb-3">
                             <label for="id_username" class="form-label">Имя пользователя</label>
                             <input type="text" name="username" class="form-control"
