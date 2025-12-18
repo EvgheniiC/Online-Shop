@@ -6,7 +6,7 @@ from users.models import User
 
 # for all carts from one user
 class CartQuerySet(models.QuerySet):
-    def total_prise(self):
+    def total_price(self):
         return sum(cart.products_price() for cart in self)
 
     def total_quantity(self):
