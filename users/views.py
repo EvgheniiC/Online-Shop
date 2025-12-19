@@ -8,6 +8,8 @@ from django.contrib.auth.decorators import login_required
 
 from users.forms import UserLoginForm, UserRegistrationForm, ProfileForm
 
+from carts.models import Cart
+
 
 def login(request):
     if request.method == 'POST':
@@ -16,9 +18,14 @@ def login(request):
             username = request.POST['username']
             password = request.POST['password']
             user = auth.authenticate(username=username, password=password)
+            session_key = request.session.session_key
+
             if user:
                 auth.login(request, user)
                 messages.success(request, f"{username} you was successful logining ")
+
+                if session_key:
+                    Cart.objects.filter(session_key=session_key).update(user=user)
 
                 if request.GET.get('next', None):
                     return HttpResponseRedirect(request.GET.get('next'))
@@ -42,8 +49,15 @@ def registration(request):
         form = UserRegistrationForm(data=request.POST)
         if form.is_valid():
             form.save()
+
+            session_key = request.session.session_key
+
             user = form.instance
             auth.login(request, user)
+
+            if session_key:
+                Cart.objects.filter(session_key=session_key).update(user=user)
+
             messages.success(request, f"{user.username} you was successful registered ")
             redirect_page = request.POST.get('next', None)
             if redirect_page and redirect_page != reverse('users:logout'):
