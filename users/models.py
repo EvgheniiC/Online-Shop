@@ -4,6 +4,7 @@ from django.db import models
 class User(AbstractUser):
     image = models.ImageField(upload_to='users_images', blank=True, null=True, verbose_name='Avatar')
     # To see correct Product name in admin panel
+    phone_number = models.CharField(max_length=11, blank=True, null=True, verbose_name='Phone Number')
 
     class Meta:
         db_table = 'user'

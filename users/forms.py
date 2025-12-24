@@ -10,8 +10,8 @@ class UserLoginForm(AuthenticationForm):
         fields = ('username', 'password')
 
     # without django
-    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    username = forms.CharField()
+    password = forms.CharField()
 
     # with django
     # username = forms.CharField(

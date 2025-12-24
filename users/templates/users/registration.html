@@ -30,9 +30,9 @@
                                        name="last_name"
                                        value="{% if form.last_name.value %}{{ form.last_name.value }}{% endif %}"
                                        placeholder="Введите вашу фамилию" required>
-                                {% if form.last_name.errors %}
-                                    <div class="alert alert-danger alert-dismissible fade show"> {{ form.last_name.errors }}</div>
-                                {% endif %}
+                                        {% if form.last_name.errors %}
+                                            <div class="alert alert-danger alert-dismissible fade show"> {{ form.last_name.errors }}</div>
+                                        {% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="id_username" class="form-label">Имя пользователя*</label>
