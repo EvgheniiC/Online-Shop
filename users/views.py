@@ -1,14 +1,13 @@
-from http.client import HTTPResponse
-
-from django.contrib import auth, messages
-from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect
-from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-
-from users.forms import UserLoginForm, UserRegistrationForm, ProfileForm
-
+from django.contrib import auth, messages
+from django.db.models import Prefetch
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from carts.models import Cart
+from orders.models import Order, OrderItem
+
+from users.forms import ProfileForm, UserLoginForm, UserRegistrationForm
 
 
 def login(request):
@@ -18,30 +17,29 @@ def login(request):
             username = request.POST['username']
             password = request.POST['password']
             user = auth.authenticate(username=username, password=password)
+
             session_key = request.session.session_key
 
             if user:
                 auth.login(request, user)
-                messages.success(request, f"{username} you was successful logining ")
+                messages.success(request, f"{username}, Вы вошли в аккаунт")
 
                 if session_key:
                     Cart.objects.filter(session_key=session_key).update(user=user)
 
-                if request.GET.get('next', None):
-                    return HttpResponseRedirect(request.GET.get('next'))
+                redirect_page = request.POST.get('next', None)
+                if redirect_page and redirect_page != reverse('user:logout'):
+                    return HttpResponseRedirect(request.POST.get('next'))
+
                 return HttpResponseRedirect(reverse('main:index'))
     else:
         form = UserLoginForm()
 
-    context = {"title": "Autorization Page", "form": form}
+    context = {
+        'title': 'Home - Авторизация',
+        'form': form
+    }
     return render(request, 'users/login.html', context)
-
-
-@login_required
-def logout(request):
-    messages.success(request, f"{request.user.username} you was successful logout")
-    auth.logout(request)
-    return redirect(reverse('main:index'))
 
 
 def registration(request):
@@ -57,32 +55,50 @@ def registration(request):
 
             if session_key:
                 Cart.objects.filter(session_key=session_key).update(user=user)
-
-            messages.success(request, f"{user.username} you was successful registered ")
-            redirect_page = request.POST.get('next', None)
-            if redirect_page and redirect_page != reverse('users:logout'):
-                return HttpResponseRedirect(request.POST.get('next'))
+            messages.success(request, f"{user.username}, Вы успешно зарегистрированы и вошли в аккаунт")
             return HttpResponseRedirect(reverse('main:index'))
     else:
         form = UserRegistrationForm()
-    context = {"title": "Registration Page", "form": form}
+
+    context = {
+        'title': 'Home - Регистрация',
+        'form': form
+    }
     return render(request, 'users/registration.html', context)
 
 
 @login_required
 def profile(request):
     if request.method == 'POST':
-        form = ProfileForm(data=request.POST, instance=request.user,
-                           files=request.FILES)  # Форма будет заполнена и можно туда ложить файл
+        form = ProfileForm(data=request.POST, instance=request.user, files=request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request, f"you was successful updated")
+            messages.success(request, "Профайл успешно обновлен")
             return HttpResponseRedirect(reverse('user:profile'))
     else:
         form = ProfileForm(instance=request.user)
-    context = {"title": "Kabinet Page", "form": form}
+
+    orders = Order.objects.filter(user=request.user).prefetch_related(
+        Prefetch(
+            "orderitem_set",
+            queryset=OrderItem.objects.select_related("product"),
+        )
+    ).order_by("-id")
+
+    context = {
+        'title': 'Home - Кабинет',
+        'form': form,
+        'orders': orders,
+    }
     return render(request, 'users/profile.html', context)
 
 
 def users_cart(request):
     return render(request, 'users/users_cart.html')
+
+
+@login_required
+def logout(request):
+    messages.success(request, f"{request.user.username}, Вы вышли из аккаунта")
+    auth.logout(request)
+    return redirect(reverse('main:index'))

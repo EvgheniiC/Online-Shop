@@ -1,3 +1,4 @@
+import re
 from django import forms
 
 
@@ -28,3 +29,16 @@ class CreateOrderForm(forms.Form):
             ("1", 'True'),
         ],
     )
+
+    # дополнительная валидация будет проверятья после основной(базовой) валидации
+    def create_phone_number(self):
+        data = self.cleaned_data["phone_number"]
+
+        if not data.isdigit():
+            raise forms.ValidationError("Please enter a valid phone number")
+
+        pattern = re.compile(r"^\+\d{3}$")
+        if not pattern.match(data):
+            raise forms.ValidationError("Please enter a valid phone number")
+
+        return data
