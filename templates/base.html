@@ -1,6 +1,6 @@
 {% load static %}
+{% load cache %}
 {% load goods_tags %}
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -20,7 +20,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{% static "deps/favicon/favicon-32x32.png" %}">
     <link rel="icon" type="image/png" sizes="16x16" href="{% static "deps/favicon/favicon-16x16.png" %}">
     <link rel="manifest" href="{% static "deps/favicon/site.webmanifest" %}">
-    <title>{{ tittle }}</title>
+    <title>{{ title }}</title>
 </head>
 
 <body>
@@ -64,11 +64,10 @@
                                 <li><a class="dropdown-item  text-white" href="{% url "user:profile" %}">Личный
                                     кабинет</a>
                                 </li>
-                                {% if user.is_admin or user.is_staff%}
-                                    <li>
-                                    <a class="dropdown-item  text-white" href="{% url "admin:index" %}">Админ панель</a>
+                                {% if user.is_admin or user.is_staff %}
+                                    <li><a class="dropdown-item  text-white" href="{% url "admin:index" %}">Админ
+                                        панель</a></li>
                                 {% endif %}
-                                </li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
@@ -98,16 +97,18 @@
                          height="16">
                 </button>
                 <ul class="dropdown-menu bg-dark" data-bs-theme="dark">
-                    {% tag_categories as categories %}
-                    {% for category in categories %}
-                        <li><a class="dropdown-item text-white"
-                               href="{% url "catalog:index" category.slug %}"> {{ category.name }} </a></li>
-                    {% endfor %}
+                    {% cache 60 catalog_categories %}
+                        {% tag_categories as categories %}
+                        {% for category in categories %}
+                            <li><a class="dropdown-item text-white"
+                                   href="{% url "catalog:index" category.slug %}">{{ category.name }}</a></li>
+                        {% endfor %}
+                    {% endcache %}
 
                 </ul>
             </div>
             <!-- Значек корзины, вызывает модальное окно -->
-                {% block modal_cart %}{% endblock %}
+            {% block modal_cart %}{% endblock %}
             <!-- Закончилась разметка модального окна -->
         </div>
     </div>
@@ -120,16 +121,14 @@
             <div class="col-lg-10">
                 <!-- Контент на странице -->
                 {% include "includes/notifications.html" %}
-                {% block content %}
-
-                {% endblock %}
+                {% block content %}{% endblock %}
             </div>
         </div>
     </div>
 </section>
-{% block footer %}
 
-{% endblock %}
+{% block footer %}{% endblock %}
+
 <script src="{% static "deps/js/jquery/jquery-3.7.0.min.js" %}"></script>
 <script src="{% static "deps/js/jquery-ajax.js" %}"></script>
 <script src="{% static "deps/js/bootstrap/bootstrap.bundle.min.js" %}"></script>

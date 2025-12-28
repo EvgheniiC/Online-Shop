@@ -63,7 +63,7 @@ ROOT_URLCONF = 'app.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR/'templates'],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -87,7 +87,7 @@ DATABASES = {
         'USER': 'home',
         'PASSWORD': 'admin',
         'HOST': 'localhost',
-        'PORT':'5432',
+        'PORT': '5432',
     }
 }
 
@@ -143,3 +143,10 @@ INTERNAL_IPS = [
 AUTH_USER_MODEL = 'users.User'
 LOGIN_URL = '/user/login/'
 LOGIN_REDIRECT_URL = '/'
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": BASE_DIR / "cache",
+    }
+}

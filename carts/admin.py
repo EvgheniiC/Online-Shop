@@ -3,24 +3,28 @@ from django.contrib import admin
 from carts.models import Cart
 
 
-# чтобы корзина(пользователей) показывалась в админ панеле для АДМИНОВ
+# admin.site.register(Cart)
 class CartTabAdmin(admin.TabularInline):
-    model = Cart  # модель
-    extra = 1  # СВОбОДНЫЕ ПОЛЯ ДЛЯ доюавления пользователем новых заказов
-    fields = ('product', 'quantity', 'created_timestamp')  # поля в онлайн режиме
-    readonly_fields = ('created_timestamp',)  # нельзя изменять
-    search_fields = ('product', 'quantity', 'created_timestamp')
+    model = Cart
+    fields = "product", "quantity", "created_timestamp"
+    search_fields = "product", "quantity", "created_timestamp"
+    readonly_fields = ("created_timestamp",)
+    extra = 1
 
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ['user', 'product', 'quantity', 'created_timestamp']
-    list_filter = ['user', 'product__name', 'created_timestamp']  # product__name это foreign key
+    list_display = ["user_display", "product_display", "quantity", "created_timestamp", ]
+    list_filter = ["created_timestamp", "user", "product__name", ]
 
     def user_display(self, obj):
         if obj.user:
-            return str(obj.user.username)
-        return "Anonymous"
+            return str(obj.user)
+        return "Анонимный пользователь"
 
     def product_display(self, obj):
         return str(obj.product.name)
+
+    # user_display and product_display alter name of columns in admin panel
+    user_display.short_description = "Пользователь"
+    product_display.short_description = "Товар"
